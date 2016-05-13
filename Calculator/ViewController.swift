@@ -9,19 +9,25 @@
 import UIKit
 
 class ViewController: UIViewController {
-
+    
+    @IBOutlet weak var decimalButton: UIButton!
+    
     @IBOutlet weak var display: UILabel!
     var userIsInTheMiddleOfTyping = false
     
     @IBAction func touchDigit(sender: UIButton) {
         let digit = sender.currentTitle!
+        
         if userIsInTheMiddleOfTyping {
-            let textCurrentlyInDisplay = display.text!
-            display.text = textCurrentlyInDisplay + digit
+            display.text = display.text! + digit
         } else {
             display.text = digit
         }
         userIsInTheMiddleOfTyping = true
+        
+        if digit == "." {
+            decimalButton.enabled = false
+        }
     }
     
     var displayValue : Double {
@@ -33,11 +39,16 @@ class ViewController: UIViewController {
         }
     }
     
+    private var brain = CalculatorBrain()
+    
     @IBAction func performOperation(sender: UIButton) {
         if userIsInTheMiddleOfTyping {
             brain.setOperand(displayValue)
         }
         userIsInTheMiddleOfTyping = false
+        
+        decimalButton.enabled = true
+        
         if let mathematicalSymbol = sender.currentTitle {
             brain.performOperation(mathematicalSymbol)
         }
@@ -45,7 +56,6 @@ class ViewController: UIViewController {
     }
     
     
-    private var brain = CalculatorBrain()
     
     
     
