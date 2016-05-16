@@ -11,9 +11,20 @@ import UIKit
 class ViewController: UIViewController {
     
     @IBOutlet weak var decimalButton: UIButton!
-    
     @IBOutlet weak var display: UILabel!
+    @IBOutlet weak var descriptionDisplay: UILabel!
     var userIsInTheMiddleOfTyping = false
+    private var brain = CalculatorBrain()
+    
+    // allows display's string to be usable as double and vice versa
+    var displayValue : Double {
+        get {
+            return Double(display.text!)!
+        }
+        set {
+            display.text = String(newValue)
+        }
+    }
     
     @IBAction func touchDigit(sender: UIButton) {
         let digit = sender.currentTitle!
@@ -25,21 +36,12 @@ class ViewController: UIViewController {
         }
         userIsInTheMiddleOfTyping = true
         
+        // ensure only one decimal
         if digit == "." {
             decimalButton.enabled = false
         }
+        
     }
-    
-    var displayValue : Double {
-        get {
-            return Double(display.text!)!
-        }
-        set {
-            display.text = String(newValue)
-        }
-    }
-    
-    private var brain = CalculatorBrain()
     
     @IBAction func performOperation(sender: UIButton) {
         if userIsInTheMiddleOfTyping {
@@ -52,11 +54,33 @@ class ViewController: UIViewController {
         if let mathematicalSymbol = sender.currentTitle {
             brain.performOperation(mathematicalSymbol)
         }
+        
         displayValue = brain.result
+        
+        updateDescriptionDisplay()
+    }
+    
+    private func updateDescriptionDisplay() {
+        if brain.isPartialResult == true {
+            descriptionDisplay.text = brain.description + "..."
+        } else {
+            descriptionDisplay.text = brain.description + "="
+        }
     }
     
     
-    
+    @IBAction func clear(sender: UIButton) {
+        // clear brain and description display
+        brain.description = "0"
+        descriptionDisplay.text = brain.description
+        
+        // clear display
+        display.text = "0"
+        
+        // reset other variables
+        userIsInTheMiddleOfTyping = false
+        brain.isPartialResult = false
+    }    
     
     
     
