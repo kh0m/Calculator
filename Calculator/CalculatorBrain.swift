@@ -11,50 +11,58 @@ import Foundation
 class CalculatorBrain {
     
     private var accumulator = 0.0
-    private var descriptionAccumulator = "0"
-    
     
     var description: String {
         get {
-            if pending == nil {
-                return descriptionAccumulator
-            } else {
-                return pending!.descriptionFunction(pending!.descriptionOperand, pending!.descriptionOperand != descriptionAccumulator ? descriptionAccumulator : "")
+            var localString = ""
+            for item in descriptionArray {
+                localString.appendContentsOf(item)
             }
+            return localString
         }
         set {
-            descriptionAccumulator = newValue
+            descriptionArray.removeAll()
+            descriptionArray.append(newValue)
         }
     }
     
+    private var descriptionArray = [""]
+    
     private var pending: PendingBinaryOperationInfo?
     var isPartialResult = false
+    private var binarySymbolEntered = false
+    
     
     func setOperand(operand: Double) {
+        binarySymbolEntered = false
         accumulator = operand
-        descriptionAccumulator = String(format: "%g", operand)
+        
+        if isPartialResult == false {
+            descriptionArray.removeAll()
+        }
+        descriptionArray.append(String(operand))
     }
     
     var operations: Dictionary<String, Operation> = [
         "π" : Operation.Constant(M_PI),
         "e" : Operation.Constant(M_E),
-        "√" : Operation.UnaryOperation(sqrt, {"√(" + $0 + ")"}),
-        "cos" : Operation.UnaryOperation(cos, {"cos(" + $0 + ")"}),
-        "sin" : Operation.UnaryOperation(sin, {"sin(" + $0 + ")"}),
-        "±" : Operation.UnaryOperation({-$0}, {"-(" + $0 + ")"}),
-        "x²" : Operation.UnaryOperation({pow($0,2)}, {"(" + $0 + ")²"}),
-        "x³" : Operation.UnaryOperation({pow($0,3)}, {"(" + $0 + ")³"}),
-        "×" : Operation.BinaryOperation({$0 * $1}, {$0 + "×" + $1}),
-        "÷" : Operation.BinaryOperation({$0 / $1}, {$0 + "÷" + $1}),
-        "+" : Operation.BinaryOperation({$0 + $1}, {$0 + "+" + $1}),
-        "−" : Operation.BinaryOperation({$0 - $1}, {$0 + "-" + $1}),
+        "√" : Operation.UnaryOperation(sqrt),
+        "cos" : Operation.UnaryOperation(cos),
+        "sin" : Operation.UnaryOperation(sin),
+        "±" : Operation.UnaryOperation({-$0}),
+        "x²" : Operation.UnaryOperation({pow($0,2)}),
+        "x³" : Operation.UnaryOperation({pow($0,3)}),
+        "×" : Operation.BinaryOperation({$0 * $1}),
+        "÷" : Operation.BinaryOperation({$0 / $1}),
+        "+" : Operation.BinaryOperation({$0 + $1}),
+        "−" : Operation.BinaryOperation({$0 - $1}),
         "=" : Operation.Equals
     ]
     
     enum Operation {
         case Constant(Double)
-        case UnaryOperation((Double) -> Double, (String) -> String)
-        case BinaryOperation((Double, Double) -> Double, (String, String) -> String)
+        case UnaryOperation((Double) -> Double)
+        case BinaryOperation((Double, Double) -> Double)
         case Equals
     }
     
@@ -65,31 +73,60 @@ class CalculatorBrain {
             case .Constant(let value):
                 accumulator = value
                 
-                descriptionAccumulator = symbol
-            case .UnaryOperation(let function, let descriptionFunction):
-                descriptionAccumulator = descriptionFunction(descriptionAccumulator)
+                if isPartialResult == false {
+                    descriptionArray.removeAll()
+                }
+                descriptionArray.append(symbol)
+                binarySymbolEntered = false
+                
+            case .UnaryOperation(let function):
+                if isPartialResult {
+                    let lastElement = descriptionArray.popLast()
+                    descriptionArray.append("\(symbol)(")
+                    descriptionArray.append(lastElement!)
+                    descriptionArray.append(")")
+                } else {
+                    let current = descriptionArray
+                    descriptionArray.removeAll()
+                    descriptionArray.append("\(symbol)(")
+                    descriptionArray.appendContentsOf(current)
+                    descriptionArray.append(")")
+                }
                 
                 accumulator = function(accumulator)
-                
-            case .BinaryOperation(let function, let descriptionFunction):
-                pending = PendingBinaryOperationInfo(binaryFunction: function, firstOperand: accumulator, descriptionFunction: descriptionFunction, descriptionOperand: descriptionAccumulator)
-                isPartialResult = true
 
                 
+            case .BinaryOperation(let function):
+                descriptionArray.append(symbol)
+                
+
+                executePendingBinaryOperation()
+                pending = PendingBinaryOperationInfo(binaryFunction: function, firstOperand: accumulator)
+                isPartialResult = true
+                
+                binarySymbolEntered = true
+                
             case .Equals:
+                
                 executePendingBinaryOperation()
                 
                 isPartialResult = false
+
             }
         }
     }
     
     private func executePendingBinaryOperation() {
         if pending != nil {
+            if binarySymbolEntered {
+                descriptionArray.append(String(accumulator))
+                binarySymbolEntered = false
+            }
+
             accumulator = pending!.binaryFunction(pending!.firstOperand, accumulator)
-            descriptionAccumulator = pending!.descriptionFunction(pending!.descriptionOperand, descriptionAccumulator)
             pending = nil
         }
+        
         isPartialResult = false
     }
     
@@ -99,10 +136,6 @@ class CalculatorBrain {
         // store pending info
         var binaryFunction: (Double, Double) -> Double
         var firstOperand: Double
-        
-        // store pending description info
-        var descriptionFunction: (String, String) -> String
-        var descriptionOperand: String
     }
     
     var result: Double {
@@ -110,4 +143,5 @@ class CalculatorBrain {
             return accumulator
         }
     }
+    
 }

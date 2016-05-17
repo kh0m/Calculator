@@ -71,7 +71,8 @@ class ViewController: UIViewController {
     
     @IBAction func clear(sender: UIButton) {
         // clear brain and description display
-        brain.description = "0"
+        brain = CalculatorBrain()
+        brain.description = " "
         descriptionDisplay.text = brain.description
         
         // clear display
@@ -80,7 +81,7 @@ class ViewController: UIViewController {
         // reset other variables
         userIsInTheMiddleOfTyping = false
         brain.isPartialResult = false
-    }    
+    }
     
     
     
