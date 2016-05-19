@@ -30,7 +30,11 @@ class ViewController: UIViewController {
         let digit = sender.currentTitle!
         
         if userIsInTheMiddleOfTyping {
-            display.text = display.text! + digit
+            if display.text! == "0" {
+                display.text = digit
+            } else {
+                display.text = display.text! + digit
+            }
         } else {
             display.text = digit
         }
@@ -41,6 +45,19 @@ class ViewController: UIViewController {
             decimalButton.enabled = false
         }
         
+    }
+    
+    var savedProgram: CalculatorBrain.PropertyList?
+    
+    @IBAction func save() {
+        savedProgram = brain.program
+    }
+    
+    @IBAction func restore() {
+        if savedProgram != nil {
+            brain.program = savedProgram!
+            displayValue = brain.result
+        }
     }
     
     @IBAction func performOperation(sender: UIButton) {
@@ -71,8 +88,7 @@ class ViewController: UIViewController {
     
     @IBAction func clear(sender: UIButton) {
         // clear brain and description display
-        brain = CalculatorBrain()
-        brain.description = " "
+        brain.clear()
         descriptionDisplay.text = brain.description
         
         // clear display
@@ -80,10 +96,24 @@ class ViewController: UIViewController {
         
         // reset other variables
         userIsInTheMiddleOfTyping = false
-        brain.isPartialResult = false
     }
     
     
+    @IBAction func backSpace() {
+        if let displayString = display.text {
+            var characters = displayString.characters
+            let lastCharacter = characters.popLast()
+            if lastCharacter == "." {
+                decimalButton.enabled = true
+            }
+            if characters.count > 0 {
+                display.text = String(characters)
+            } else {
+                display.text = "0"
+            }
+            userIsInTheMiddleOfTyping = true
+        }
+    }
     
     
     
