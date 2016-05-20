@@ -13,7 +13,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var decimalButton: UIButton!
     @IBOutlet weak var display: UILabel!
     @IBOutlet weak var descriptionDisplay: UILabel!
-    var userIsInTheMiddleOfTyping = true
+    var userIsInTheMiddleOfTyping = false
     private var brain = CalculatorBrain()
     
     // allows display's string to be usable as double and vice versa

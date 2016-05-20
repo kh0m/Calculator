@@ -132,7 +132,7 @@
                                                         <rect key="frame" x="288" y="0.0" width="86" height="70"/>
                                                         <color key="backgroundColor" red="0.80000001190000003" green="0.80000001190000003" blue="0.80000001190000003" alpha="1" colorSpace="calibratedRGB"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="24"/>
-                                                        <state key="normal" title="x³">
+                                                        <state key="normal" title="rand">
                                                             <color key="titleColor" red="0.36470588240000001" green="0.090196078430000007" blue="0.37647058820000001" alpha="1" colorSpace="calibratedRGB"/>
                                                         </state>
                                                         <connections>

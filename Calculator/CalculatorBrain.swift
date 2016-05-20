@@ -70,7 +70,8 @@ class CalculatorBrain {
         "÷" : Operation.BinaryOperation({$0 / $1}),
         "+" : Operation.BinaryOperation({$0 + $1}),
         "−" : Operation.BinaryOperation({$0 - $1}),
-        "=" : Operation.Equals
+        "=" : Operation.Equals,
+        "rand" : Operation.Random
     ]
     
     enum Operation {
@@ -78,6 +79,7 @@ class CalculatorBrain {
         case UnaryOperation((Double) -> Double)
         case BinaryOperation((Double, Double) -> Double)
         case Equals
+        case Random
     }
     
     func performOperation(symbol: String) {
@@ -126,7 +128,15 @@ class CalculatorBrain {
                 executePendingBinaryOperation()
                 
                 isPartialResult = false
-
+                
+            case .Random:
+                let rand = drand48()
+                accumulator = Double(rand)
+                if isPartialResult == false {
+                    descriptionArray.removeAll()
+                }
+                descriptionArray.append(symbol)
+                binarySymbolEntered = false
             }
         }
     }
