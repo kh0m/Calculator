@@ -13,16 +13,33 @@ class ViewController: UIViewController {
     @IBOutlet weak var decimalButton: UIButton!
     @IBOutlet weak var display: UILabel!
     @IBOutlet weak var descriptionDisplay: UILabel!
-    var userIsInTheMiddleOfTyping = false
+    var userIsInTheMiddleOfTyping = true
     private var brain = CalculatorBrain()
     
     // allows display's string to be usable as double and vice versa
-    var displayValue : Double {
+    var displayValue : Double? {
         get {
-            return Double(display.text!)!
+            if let text = Double(display.text!) {
+                return text
+            } else {
+                return nil
+            }
         }
         set {
-            display.text = String(newValue)
+            if newValue == nil {
+                display.text = "0"
+            } else {
+                let formatter = NSNumberFormatter()
+                formatter.roundingMode = .RoundDown
+                if trunc(newValue!) == newValue! {
+                    formatter.maximumFractionDigits = 0
+                } else {
+                    formatter.maximumFractionDigits = 6
+                }
+                let num = NSNumber(double: newValue!)
+                let string = formatter.stringFromNumber(num)
+                display.text = string!
+            }
         }
     }
     
@@ -61,8 +78,8 @@ class ViewController: UIViewController {
     }
     
     @IBAction func performOperation(sender: UIButton) {
-        if userIsInTheMiddleOfTyping {
-            brain.setOperand(displayValue)
+        if userIsInTheMiddleOfTyping && displayValue != nil {
+            brain.setOperand(displayValue!)
         }
         userIsInTheMiddleOfTyping = false
         
@@ -90,6 +107,7 @@ class ViewController: UIViewController {
         // clear brain and description display
         brain.clear()
         descriptionDisplay.text = brain.description
+        brain.description = "0"
         
         // clear display
         display.text = "0"

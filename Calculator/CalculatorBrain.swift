@@ -15,6 +15,7 @@ class CalculatorBrain {
     
     var description: String {
         get {
+            // make a string from descriptionArray
             var localString = ""
             for item in descriptionArray {
                 localString.appendContentsOf(item)
@@ -27,7 +28,7 @@ class CalculatorBrain {
         }
     }
     
-    private var descriptionArray = [""]
+    private var descriptionArray = ["0"]
     
     private var pending: PendingBinaryOperationInfo?
     var isPartialResult = false
@@ -42,7 +43,18 @@ class CalculatorBrain {
         if isPartialResult == false {
             descriptionArray.removeAll()
         }
-        descriptionArray.append(String(operand))
+        
+        let formatter = NSNumberFormatter()
+        formatter.roundingMode = .RoundDown
+        if trunc(operand) == operand {
+            formatter.maximumFractionDigits = 0
+        } else {
+            formatter.maximumFractionDigits = 6
+        }
+        let num = NSNumber(double: operand)
+        let string = formatter.stringFromNumber(num)
+
+        descriptionArray.append(string!)
     }
     
     var operations: Dictionary<String, Operation> = [
