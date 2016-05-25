@@ -17,7 +17,7 @@ class ViewController: UIViewController {
     private var brain = CalculatorBrain()
     
     // allows display's string to be usable as double and vice versa
-    var displayValue : Double? {
+    private var displayValue : Double? {
         get {
             if let text = Double(display.text!) {
                 return text
@@ -29,16 +29,8 @@ class ViewController: UIViewController {
             if newValue == nil {
                 display.text = "0"
             } else {
-                let formatter = NSNumberFormatter()
-                formatter.roundingMode = .RoundDown
-                if trunc(newValue!) == newValue! {
-                    formatter.maximumFractionDigits = 0
-                } else {
-                    formatter.maximumFractionDigits = 6
-                }
-                let num = NSNumber(double: newValue!)
-                let string = formatter.stringFromNumber(num)
-                display.text = string!
+                let string = brain.formatDouble(newValue!)
+                display.text = string
             }
         }
     }
@@ -64,13 +56,13 @@ class ViewController: UIViewController {
         
     }
     
-    var savedProgram: CalculatorBrain.PropertyList?
-    
-    @IBAction func save() {
+    private var savedProgram: CalculatorBrain.PropertyList?
+
+    private func save() {
         savedProgram = brain.program
     }
     
-    @IBAction func restore() {
+    private func restore() {
         if savedProgram != nil {
             brain.program = savedProgram!
             displayValue = brain.result
@@ -102,6 +94,19 @@ class ViewController: UIViewController {
         }
     }
     
+    // →M
+    @IBAction func setVariable() {
+        save()
+        brain.variableValues["M"] = displayValue
+        restore()
+    }
+    
+    // M
+    @IBAction func useVariable() {
+        brain.setOperand("M")
+        displayValue = brain.result
+    }
+    
     
     @IBAction func clear(sender: UIButton) {
         // clear brain and description display
@@ -114,6 +119,7 @@ class ViewController: UIViewController {
         
         // reset other variables
         userIsInTheMiddleOfTyping = false
+        brain.clearVariables()
     }
     
     
