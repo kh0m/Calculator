@@ -218,6 +218,12 @@ class CalculatorBrain {
         variableValues = [:]
     }
     
+    func undo() {
+        // remove last operation then redo all operations
+        internalProgram.removeLast()
+        program = internalProgram
+    }
+    
     struct PendingBinaryOperationInfo {
         // store pending info
         var binaryFunction: (Double, Double) -> Double

@@ -124,18 +124,23 @@ class ViewController: UIViewController {
     
     
     @IBAction func backSpace() {
-        if let displayString = display.text {
-            var characters = displayString.characters
-            let lastCharacter = characters.popLast()
-            if lastCharacter == "." {
-                decimalButton.enabled = true
+        if userIsInTheMiddleOfTyping {
+            if let displayString = display.text {
+                var characters = displayString.characters
+                let lastCharacter = characters.popLast()
+                if lastCharacter == "." {
+                    decimalButton.enabled = true
+                }
+                if characters.count > 0 {
+                    display.text = String(characters)
+                } else {
+                    display.text = "0"
+                }
+                userIsInTheMiddleOfTyping = true
             }
-            if characters.count > 0 {
-                display.text = String(characters)
-            } else {
-                display.text = "0"
-            }
-            userIsInTheMiddleOfTyping = true
+        } else {
+            brain.undo()
+            updateDescriptionDisplay()
         }
     }
     
