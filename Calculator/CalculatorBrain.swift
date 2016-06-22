@@ -32,8 +32,7 @@ class CalculatorBrain {
     
     private var pending: PendingBinaryOperationInfo?
     var isPartialResult = false
-    private var binarySymbolEntered = false
-    
+    var binarySymbolEntered = false
     
     func setOperand(operand: Double) {
         binarySymbolEntered = false
@@ -44,17 +43,42 @@ class CalculatorBrain {
             descriptionArray.removeAll()
         }
         
+        let string = formatDouble(operand)
+
+        descriptionArray.append(string)
+    }
+    
+    var variableValues: Dictionary<String, Double> = [:]
+    
+    func setOperand(variableName: String) {
+        binarySymbolEntered = false
+        
+        if let operand = variableValues[variableName] {
+            accumulator = operand
+        } else {
+            accumulator = 0
+        }
+        internalProgram.append(variableName)
+        
+        if isPartialResult == false {
+            descriptionArray.removeAll()
+        }
+        
+        descriptionArray.append(variableName)
+    }
+    
+    // format a Double then make it into a String
+    func formatDouble(double: Double) -> String {
+        
         let formatter = NSNumberFormatter()
         formatter.roundingMode = .RoundDown
-        if trunc(operand) == operand {
+        if trunc(double) == double {
             formatter.maximumFractionDigits = 0
         } else {
             formatter.maximumFractionDigits = 6
         }
-        let num = NSNumber(double: operand)
-        let string = formatter.stringFromNumber(num)
-
-        descriptionArray.append(string!)
+        let num = NSNumber(double: double)
+        return formatter.stringFromNumber(num)!
     }
     
     var operations: Dictionary<String, Operation> = [
@@ -111,11 +135,10 @@ class CalculatorBrain {
                 }
                 
                 accumulator = function(accumulator)
-
+                
                 
             case .BinaryOperation(let function):
                 descriptionArray.append(symbol)
-                
 
                 executePendingBinaryOperation()
                 pending = PendingBinaryOperationInfo(binaryFunction: function, firstOperand: accumulator)
@@ -127,7 +150,6 @@ class CalculatorBrain {
                 
                 executePendingBinaryOperation()
                 
-                isPartialResult = false
                 
             case .Random:
                 let rand = drand48()
@@ -144,7 +166,8 @@ class CalculatorBrain {
     private func executePendingBinaryOperation() {
         if pending != nil {
             if binarySymbolEntered {
-                descriptionArray.append(String(accumulator))
+                let string = formatDouble(accumulator)
+                descriptionArray.append(string)
                 binarySymbolEntered = false
             }
 
@@ -166,12 +189,20 @@ class CalculatorBrain {
             if let arrayOfOps = newValue as? [AnyObject] {
                 for op in arrayOfOps {
                     if let operand = op as? Double {
+                        // op is a Double
                         setOperand(operand)
-                    } else if let operation = op as? String {
-                        performOperation(operation)
+                    } else if let stringOp = op as? String {
+                        if operations[stringOp] != nil {
+                            // op is an operation
+                            performOperation(stringOp)
+                        } else {
+                            // op is a variable
+                            setOperand(stringOp)
+                        }
                     }
                 }
             }
+            isPartialResult = true
         }
     }
     
@@ -181,6 +212,16 @@ class CalculatorBrain {
         internalProgram.removeAll()
         description = " "
         isPartialResult = false
+    }
+    
+    func clearVariables() {
+        variableValues = [:]
+    }
+    
+    func undo() {
+        // remove last operation then redo all operations
+        internalProgram.removeLast()
+        program = internalProgram
     }
     
     struct PendingBinaryOperationInfo {
