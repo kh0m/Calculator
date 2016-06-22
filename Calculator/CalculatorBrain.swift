@@ -135,7 +135,7 @@ class CalculatorBrain {
                 if isPartialResult == false {
                     descriptionArray.removeAll()
                 }
-                descriptionArray.append(symbol)
+                setOperand(rand)
                 binarySymbolEntered = false
             }
         }
