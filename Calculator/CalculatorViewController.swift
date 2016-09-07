@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  CalculatorViewController.swift
 //  Calculator
 //
 //  Created by Hom, Kenneth on 5/12/16.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class CalculatorViewController: UIViewController {
     
     @IBOutlet weak var decimalButton: UIButton!
     @IBOutlet weak var display: UILabel!
@@ -144,7 +144,17 @@ class ViewController: UIViewController {
         }
     }
     
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        let destinationvc = segue.destinationViewController
+        destinationvc.title = description
+    }
     
+    
+    @IBAction func showGraph(sender: UIButton) {
+        if brain.isPartialResult == false {
+            print(brain.program)
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
