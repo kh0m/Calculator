@@ -29,6 +29,11 @@ class GraphViewController: UIViewController {
             
             // pan
             graphView.addGestureRecognizer(UIPanGestureRecognizer(target: graphView, action: #selector(GraphView.moveOrigin(_:))))
+            
+            // double tap
+            let doubleTap = UITapGestureRecognizer(target: graphView, action: #selector(GraphView.moveOrigin(to:recognizer:)))
+            doubleTap.numberOfTapsRequired = 2
+            graphView.addGestureRecognizer(doubleTap)
         }
     }
     

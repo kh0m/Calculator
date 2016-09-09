@@ -45,4 +45,10 @@ class GraphView: UIView {
         default: break
         }
     }
+    
+    func moveOrigin(to point: CGPoint, recognizer: UITapGestureRecognizer){
+        if recognizer.state == .Ended {
+            origin = recognizer.locationInView(self)
+        }
+    }
 }
